@@ -8,7 +8,7 @@ Fisco provides two primitives: `PiecewiseLinear` for continuous schedules and `S
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/YOUR_USERNAME/Fisco.jl")
+Pkg.add(url="https://github.com/molivov/Fisco.jl")
 ```
 
 ## Quick start
