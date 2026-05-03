@@ -1,5 +1,5 @@
 using Test
-using Fisco
+using .Fisco
 
 @testset "Fisco.jl" begin
 
@@ -120,7 +120,7 @@ end
     )
     @test ccs(50_000.0) ≈ 0.85
     @test ccs(177_466.0) ≈ 0.50
-    @test ccs(300_000.0) ≈ 0.20 + (0.20 - 0.50) / (346_756.0 - 256_756.0) * (300_000.0 - 256_756.0)
+    @test ccs(300_000.0) ≈ 0.50 + (0.20 - 0.50) / (346_756.0 - 256_756.0) * (300_000.0 - 256_756.0)
     @test ccs(350_000.0) ≈ 0.20
     @test ccs(400_000.0) ≈ 0.0
 
@@ -128,6 +128,31 @@ end
     pl3 = PiecewiseLinear((0, 10, 20); levels=(0.0, 5.0, 15.0))
     @test eltype(pl3.breakpoints) == Float64
     @test pl3(15.0) ≈ 10.0
+
+    # last_rate: tax brackets with 45% beyond last breakpoint
+    tax = PiecewiseLinear(
+        (0.0, 18_200.0, 45_000.0, 135_000.0, 190_000.0);
+        levels=(0.0, 0.0, 4_288.0, 31_288.0, 51_638.0),
+        last_rate=0.45
+    )
+    tax_rates = PiecewiseLinear(
+        (0.0, 18_200.0, 45_000.0, 135_000.0, 190_000.0),
+        (0.0, 0.16, 0.30, 0.37, 0.45),
+        0.0
+    )
+    # Both constructors produce identical results everywhere
+    for x in [0.0, 18_200.0, 50_000.0, 135_000.0, 190_000.0, 250_000.0]
+        @test tax(x) ≈ tax_rates(x)
+    end
+    @test tax.rates[5] == 0.45
+
+    # last_rate with levels constructor matches rates constructor fully
+    pl_lr = PiecewiseLinear(
+        (0.0, 100.0, 200.0, 500.0);
+        levels=(0.0, 0.0, 10.0, 70.0),
+        last_rate=0.30
+    )
+    @test pl_lr(600.0) ≈ 100.0  # now matches pl2
 end
 
 @testset "PiecewiseLinear — marginal_rate" begin

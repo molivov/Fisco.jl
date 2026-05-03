@@ -8,7 +8,7 @@ Fisco provides two primitives: `PiecewiseLinear` for continuous schedules and `S
 
 ```julia
 using Pkg
-Pkg.add(url="https://github.com/molivov/Fisco.jl")
+Pkg.add(url="https://github.com/YOUR_USERNAME/Fisco.jl")
 ```
 
 ## Quick start
@@ -67,18 +67,21 @@ marginal_rate(lito, 40_000.0)  # → -0.05
 
 ### Levels constructor
 
-Specify breakpoints and the function value at each breakpoint. Rates are derived automatically. The last segment extrapolates flat:
+Specify breakpoints and the function value at each breakpoint. Rates are derived automatically. The last segment extrapolates flat by default, or at `last_rate` if specified:
 
 ```julia
-# CCS rate taper with plateaus (2022-23)
+# CCS rate taper with plateaus (2022-23) — flat beyond last breakpoint
 ccs = PiecewiseLinear(
     (0.0, 72_466.0, 177_466.0, 256_756.0, 346_756.0, 356_756.0, 356_757.0);
     levels=(0.85, 0.85, 0.50, 0.50, 0.20, 0.20, 0.0)
 )
 
-ccs(100_000.0)   # → 0.758 (tapering from 85% toward 50%)
-ccs(200_000.0)   # → 0.50  (plateau)
-ccs(400_000.0)   # → 0.0   (above cutoff)
+# Tax brackets — 45% beyond last breakpoint
+brackets = PiecewiseLinear(
+    (0.0, 18_200.0, 45_000.0, 135_000.0, 190_000.0);
+    levels=(0.0, 0.0, 4_288.0, 31_288.0, 51_638.0),
+    last_rate=0.45
+)
 ```
 
 ### marginal_rate
@@ -202,4 +205,3 @@ Australian coverage includes income tax brackets (2009-10 to 2025-26), LITO, Med
 - **Zero dependencies.** The core package has no dependencies beyond Julia Base.
 - **AD-compatible by construction.** All types use `T<:Real` to admit ForwardDiff dual numbers. All structs are immutable. All computation is pure.
 - **Composable primitives.** `PiecewiseLinear` and `StepFunction` are the atoms. Tax-transfer calculators are functions that combine them.
-

@@ -99,34 +99,42 @@ end
 # ---- Construct from (breakpoints, levels) — derive rates ----
 
 """
-    PiecewiseLinear(breakpoints; levels)
+    PiecewiseLinear(breakpoints; levels, last_rate=0)
 
 Construct from breakpoints and function values at each breakpoint.
 Rates are derived: `rates[i] = (levels[i+1] - levels[i]) / (breakpoints[i+1] - breakpoints[i])`.
-The last segment's rate is zero (flat extrapolation).
+The last segment uses `last_rate` (default: zero, i.e. flat extrapolation).
+
+    # CCS taper — flat beyond last breakpoint
+    PiecewiseLinear((0.0, 72_466.0, 356_757.0); levels=(0.85, 0.85, 0.0))
+
+    # Tax brackets — 45% beyond last breakpoint
+    PiecewiseLinear((0.0, 18_200.0, 45_000.0, 135_000.0, 190_000.0);
+        levels=(0.0, 0.0, 4_288.0, 31_288.0, 51_638.0), last_rate=0.45)
 """
 function PiecewiseLinear(
     breakpoints::NTuple{N};
-    levels::NTuple{N}
+    levels::NTuple{N},
+    last_rate::Real = 0
 ) where {N}
-    T = promote_type(eltype(breakpoints), eltype(levels))
+    T = promote_type(eltype(breakpoints), eltype(levels), typeof(last_rate))
     bp = NTuple{N, T}(breakpoints)
     lv = NTuple{N, T}(levels)
     for i in 2:N
         bp[i] > bp[i-1] ||
             throw(ArgumentError("breakpoints must be strictly increasing"))
     end
-    rates = _derive_rates(bp, lv)
+    rates = _derive_rates(bp, lv, T(last_rate))
     PiecewiseLinear{T, N}(bp, rates, lv)
 end
 
 # Derive rates via recursive tuple peeling
-function _derive_rates(bp::NTuple{N, T}, lv::NTuple{N, T}) where {T, N}
+function _derive_rates(bp::NTuple{N, T}, lv::NTuple{N, T}, last_rate::T) where {T, N}
     if N == 1
-        return (zero(T),)
+        return (last_rate,)
     end
     rate = (lv[2] - lv[1]) / (bp[2] - bp[1])
-    return (rate, _derive_rates(Base.tail(bp), Base.tail(lv))...)
+    return (rate, _derive_rates(Base.tail(bp), Base.tail(lv), last_rate)...)
 end
 
 # ---- Build levels via recursive tuple peeling ----
