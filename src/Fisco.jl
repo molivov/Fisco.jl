@@ -268,6 +268,6 @@ end
 const PiecewiseConstant = StepFunction
 
 # Country modules
-include("AUS.jl")
+include("countries/AUS.jl")
 
 end # module
