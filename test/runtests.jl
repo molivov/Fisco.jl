@@ -1,5 +1,5 @@
 using Test
-using .Fisco
+using Fisco
 
 @testset "Fisco.jl" begin
 
@@ -63,6 +63,21 @@ end
     pl = PiecewiseLinear((0, 10, 20), (0.0, 1.0, 2.0), 0.0)
     @test eltype(pl.breakpoints) == Float64
     @test pl(15.0) ≈ 5.0
+end
+
+@testset "PiecewiseLinear — vector constructors" begin
+    # Rates from vectors
+    pl_v = PiecewiseLinear([0.0, 18_200.0, 45_000.0], [0.0, 0.16, 0.30], 0.0)
+    pl_t = PiecewiseLinear((0.0, 18_200.0, 45_000.0), (0.0, 0.16, 0.30), 0.0)
+    @test pl_v(50_000.0) ≈ pl_t(50_000.0)
+
+    # Levels from vectors
+    pl_lv = PiecewiseLinear([0.0, 18_200.0, 45_000.0]; levels=[0.0, 0.0, 4_288.0], last_rate=0.30)
+    @test pl_lv(50_000.0) ≈ pl_t(50_000.0)
+
+    # Mismatched lengths → error
+    @test_throws ArgumentError PiecewiseLinear([0.0, 10.0], [1.0], 0.0)
+    @test_throws ArgumentError PiecewiseLinear([0.0, 10.0]; levels=[1.0])
 end
 
 @testset "PiecewiseLinear — type stability" begin
@@ -218,6 +233,15 @@ end
 
 @testset "StepFunction — non-sorted thresholds error" begin
     @test_throws ArgumentError StepFunction((10.0, 5.0), (1.0, 2.0))
+end
+
+@testset "StepFunction — vector constructor" begin
+    sf_v = StepFunction([0.0, 8.0, 17.0, 49.0], [0.0, 36.0, 72.0, 100.0])
+    sf_t = StepFunction((0.0, 8.0, 17.0, 49.0), (0.0, 36.0, 72.0, 100.0))
+    @test sf_v(10.0) == sf_t(10.0)
+    @test sf_v(50.0) == sf_t(50.0)
+
+    @test_throws ArgumentError StepFunction([0.0, 10.0], [1.0])
 end
 
 end # top-level testset

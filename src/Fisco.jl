@@ -96,6 +96,27 @@ function PiecewiseLinear(
     )
 end
 
+# Vector convenience: convert to tuples
+function PiecewiseLinear(
+    breakpoints::AbstractVector,
+    rates::AbstractVector,
+    initial::Real
+)
+    length(breakpoints) == length(rates) ||
+        throw(ArgumentError("breakpoints and rates must have the same length"))
+    PiecewiseLinear(Tuple(breakpoints), Tuple(rates), initial)
+end
+
+function PiecewiseLinear(
+    breakpoints::AbstractVector;
+    levels::AbstractVector,
+    last_rate::Real = 0
+)
+    length(breakpoints) == length(levels) ||
+        throw(ArgumentError("breakpoints and levels must have the same length"))
+    PiecewiseLinear(Tuple(breakpoints); levels=Tuple(levels), last_rate=last_rate)
+end
+
 # ---- Construct from (breakpoints, levels) — derive rates ----
 
 """
@@ -261,6 +282,13 @@ end
 function StepFunction(thresholds::NTuple{N}, values::NTuple{N}) where {N}
     T = promote_type(eltype(thresholds), eltype(values))
     StepFunction(NTuple{N, T}(thresholds), NTuple{N, T}(values))
+end
+
+# Vector convenience
+function StepFunction(thresholds::AbstractVector, values::AbstractVector)
+    length(thresholds) == length(values) ||
+        throw(ArgumentError("thresholds and values must have the same length"))
+    StepFunction(Tuple(thresholds), Tuple(values))
 end
 
 @inline function evaluate(sf::StepFunction{T, N}, x::Real) where {T, N}

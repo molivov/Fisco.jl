@@ -84,6 +84,12 @@ brackets = PiecewiseLinear(
 )
 ```
 
+All constructors also accept vectors, for when schedules are read from a table or CSV:
+
+```julia
+PiecewiseLinear([0.0, 18_200.0, 45_000.0], [0.0, 0.16, 0.30], 0.0)
+```
+
 ### marginal_rate
 
 Returns the slope at a given input — no AD required, just a bracket lookup:
