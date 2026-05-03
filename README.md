@@ -32,7 +32,7 @@ marginal_rate(brackets, 200_000.0) # → 0.45
 
 Printing a schedule shows its full structure:
 
-```
+```julia
 julia> brackets
 PiecewiseLinear{Float64} with 5 segments:
   [0.0, 18200.0) → rate 0.0, level 0.0
