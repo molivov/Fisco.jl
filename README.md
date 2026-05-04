@@ -211,3 +211,6 @@ Australian coverage includes income tax brackets (2009-10 to 2025-26), LITO, Med
 - **Zero dependencies.** The core package has no dependencies beyond Julia Base.
 - **AD-compatible by construction.** All types use `T<:Real` to admit ForwardDiff dual numbers. All structs are immutable. All computation is pure.
 - **Composable primitives.** `PiecewiseLinear` and `StepFunction` are the atoms. Tax-transfer calculators are functions that combine them.
+
+## AI Disclosure
+This package was developed with the assistance of Claude (Anthropic). All code has been reviewed, tested, and validated by the author.
