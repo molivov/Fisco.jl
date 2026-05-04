@@ -213,4 +213,5 @@ Australian coverage includes income tax brackets (2009-10 to 2025-26), LITO, Med
 - **Composable primitives.** `PiecewiseLinear` and `StepFunction` are the atoms. Tax-transfer calculators are functions that combine them.
 
 ## AI Disclosure
+
 This package was developed with the assistance of Claude (Anthropic). All code has been reviewed, tested, and validated by the author.
